@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <link rel="icon" href="media/hcurien.ico">
+
+    <link rel="stylesheet" href="./nuedeck/nuedeck-theme.css">
+    <link rel="stylesheet" href="./nuedeck/katex.min.css">
+
+    <title></title>
+    <meta name="title" content="Anomaly Detection: class imbalance or novelty">
+
+    <meta name="author" content="Rémi Emonet">
+    <meta name="authorFrom" content="Université Jean-Monnet, Laboratoire Hubert Curien, Saint-Étienne">
+    <meta name="venue" content="DÉFI IA 2020 (INSA Toulouse)">
+    <meta name="date" content="2020-01-23">
+
+    <style>
+    .accro { font-weight: bold; }
+    .padli>*>li { line-height: 2.5em; }
+    .katex { font-size: 90%; }
+    .abs { position: absolute; }
+    svg.abs { background: white; border-radius: 5px;}
+    .paperattrib h2 { font-style: italic; font-weight: lighter; }
+    .paperattrib strong { text-decoration: underline; }
+    .imagesleft img { float: left; }
+    .title-slide h1 { font-size: 32px; text-align: center; margin-top: 150px; }
+    .footnote { font-size: 80%; position: absolute; display: block; bottom: 20px;}
+
+    .dense { font-size: 80%;}
+    .denser { font-size: 60%;}
+    .densest { font-size: 40%;}
+    .displaynone { display: none !important; }
+    .FS {
+        position: fixed !important;
+        left:0; width:100% !important;
+        top:0; height:100% !important;
+        background: white;
+        /*z-index: 1; in front of katex equations */
+    }
+    .black-bg { background: black !important; }
+    :not(.black-bg) { transition: 300ms ease-in background; background: default; }
+
+    .title-slide h2, .title-slide ul {
+       box-shadow: rgba(0,0,0, 0.2) 0px 0px 20px;
+    }
+    .fancy-slide h2, .fancy-slide ul {
+       color: white;
+    }
+    .fancy-slide ul {
+       padding: 0.5em; background: rgba(0,0,0,0.8);
+       border-radius: 3px;
+       list-style: none !important;
+    }
+    .fancy-slide.bot ul {
+       position: absolute; left: 20px; bottom: 20px; margin:0;
+    }
+    .fancy-slide.top ul {
+       position: absolute; right: 20px; top: 20px; margin:0;
+    }
+    .title-slide ul {
+      padding: 0 20px;
+      font-size: 20px;
+      position: absolute; right: 50px; left: auto; bottom: 70px;
+    }
+    .tunedel del {position: relative; text-decoration: none;}
+    .tunedel del::after { content:'' ; position:absolute; top: 60%; left: 0; right:0; border-bottom: 3px solid #F44; transform: rotate(-10deg);}
+    .tunedel sup {color: #F44;}
+    .captain {font-size: 80%;}
+    .centerimage img { display: block; margin: auto; }
+
+    .floatright { float:right; }
+    .slide-number span { font-size: 65%; }
+
+    .hidden { visibility: hidden; }
+    svg .hidden { display: none; }
+    li.no { list-style: none; }
+    .no-status .slide-number { display: none; }
+    .comment { display: none; }
+
+    .highlight, .done ul li { text-decoration: underline; }
+
+.nuedeck { background: black; }
+
+.image-full > .attribution-wrap, .image-full > img, .image-full > div.img, .image-fit > .attribution-wrap, .image-fit > img, .image-fit > div.img {
+  z-index: -1;
+}
+.image-full > img, .image-full > div.img, .image-fit > img, .image-fit > div.img {
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  min-height: 100%;
+}
+.image-full div.img, .image-fit div.img {
+  width: 100%;
+  height: 100%;
+  outline: 2px solid red;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+.image-full.image-full div.img, .image-fit.image-full div.img {
+  background-size: cover;
+}
+.image-full.image-fit div.img, .image-fit.image-fit div.img {
+  background-size: contain;
+}
+.top-left h2 {
+  position: absolute;
+  border: 0px;
+  top: 50px;
+  left: 50px;
+}
+.top-right h2 {
+  position: absolute;
+  border: 0px;
+  top: 50px;
+  right: 50px;
+}
+.bottom-left h2 {
+  position: absolute;
+  border: 0px;
+  bottom: 50px;
+  left: 50px;
+}
+.bottom-right h2 {
+  position: absolute;
+  border: 0px;
+  bottom: 50px;
+  right: 50px;
+}
+.no-title h1, .no-title h2 {
+  display: none;
+}
+.darkened h2 {
+  background: rgba(0, 0, 0, 0.75);
+  padding: 15px;
+  margin: -15px;
+}
+    </style>
+    <style>
+.img3inwidth img {
+      margin-left: 24px;
+      width: 210px;
+      display: inline;
+}
+.img3inwidth img.current-step-exact~img {
+    opacity: 0;
+    transform: scale(0, 0);
+    transform-origin: 50% 50%;
+    }
+  .img3inwidth img.current-step-exact:not(.nohighlight) {
+        animation: scale-enter 0ms;
+        opacity: 1;
+        transform-origin: 50% 50%;
+        transform: scale(1, 1);
+        transition: all 300ms;
+
+        position: absolute;
+        left: 20px;
+        width: 700px;
+        top: 100px;
+        height: auto;
+        border: 10px solid black;
+      }
+     </style>
+     <style>
+.imagets > ul {
+    margin: 0;
+    padding: 0;
+    font-size: 20px;
+ }
+.imagets > ul > li:not(.banner):not(.label) {
+    display: inline-block;
+    margin-bottom: 20px;
+    margin-top: 0;
+    width: 370px;
+    text-align: center;
+    line-height: 1.2em; }
+  .imagets > ul > li:not(.banner):not(.label) img {
+      max-height: 200px;
+      max-width: 360px; 
+      margin-bottom: 0;
+}
+
+     </style>
+  </head>
+  <body>
+    <!-- This is the mount point, it will be replaced by an element with class nuedeck -->
+    <div id="nd-container"></div>
+
+    <!-- To add something to the container -->
+    <template class="nd-addon">
+      <!--<status-bar :current="currentSlide"></status-bar>-->
+    </template>
+
+    <!-- To add something to every slide -->
+    <template class="nd-addin">
+      <status-bar></status-bar>
+    </template>
+
+    <!-- To author slides -->
+    <template class="nd-source">
+
+      @sticky-now
+      @sticky-add: @:libyli
+      @:title-slide /no-status
+      # <span v-html="nd.vars.titleHTML || $f.br(nd.vars.title)"></span> // comment
+
+
+      <img src="media/logos.svg" width="800" class="abs" style="top:10px"/>
+
+      - {{ nd.vars.author }} {.no}
+
+      - <span style="font-family: monospace" v-html="$f.br(nd.vars.authorFrom)"></span> {.no}
+
+      - Talk at {{ nd.vars.venue }}, {{ nd.vars.date }} {.no}
+
+
+      @for-copy
+      @:#overview overview no-libyli
+      ## Overview
+      - Introduction
+      - Anomaly and fraud detection
+      - Imbalanced classification problems
+        - The Problem (and performance measures)
+        - Reweight, resampling, etc
+        - Learning maximum excluding ellipsoids
+        - Correcting k-NN: *$\gamma$-NN@:accro*
+        - Focusing on the F-Measure optimization
+      - Probabilistic models for unsupervised anomaly detection
+      - Discussion
+
+      @eval-header: return highlightLi(1)
+      # @copy: overview
+
+      @:.denser /no-status 
+      ## Laboratoire Hubert Curien
+
+      <img src="media/logos.svg" width="800" class="abs" style="bottom:10px"/>
+
+      <img src="labhc/labhc-stats-and-map.svg" width="800" height="200" style="box-size: border-box; padding: 20px;" />
+
+      <img src="labhc/labhc-lasers-etc.png" width="400" class="floatright"/>
+
+      - Optic-Photonic & Microwaves:
+        - Micro  & nano structuration
+        - Laser Processes 
+        - Materials & Surfaces
+        - Functionalization of surfaces
+        - Materials for harsh environments
+
+      - Informatics, Telecom & Image:
+        - Images Analysis
+        - Data intelligence
+        - Secured embedded Systems
+
+
+      @:.dense
+      ## “Data Intelligence” Team: <br/>**Machine Learning and Complex Data Analysis**{.dense}
+
+      <img src="labhc/labhc-di-methods.svg" width="200" class="floatright" style="padding-top:30px"/>
+
+      The team is specialized in statistical machine learning and
+      data analysis and addresses mainly the following areas:
+
+
+      - **Representation Learning:** Deep Learning, Embedding for
+        structured data (graphs, texts, images, sequences),
+        incorporation of background knowledge and
+        interpretability.
+
+      - **Metric Learning:** optimizing ad hoc metrics
+        (distance/similarity) under semantic constraints.
+      - **Transfer Learning and Domain Adaptation:** Adapting
+        and transferring models to new tasks or domains.
+        Metric Learning
+      - **Learning theory:** Developing theoretical guarantees,
+        formal frameworks and interpretation for learned
+        models. (PAC-Bayesian Theory, Optimal Transport, ...)
+
+      @:.dense
+      ## “Data Intelligence” Team: <br/>**Machine Learning and Complex Data Analysis**{.dense}
+
+      <div class="floatright" style="text-align: right;">
+        <img src="labhc/labhc-di-graphs.svg" width="220" style="padding-top:30px; clear:both"/>
+        <br/>
+        <img src="labhc/labhc-di-mining-video.jpg" width="300" style="padding: 20px"/>
+      </div>
+      
+      - **Data Mining:** Designing large scale methods to extract
+        relevant and meaningful information from structured data,
+        such as graphs or sequences, in the form of frequent or rare
+        (spatio-temporal) patterns.
+
+      - **Learning/Analyzing from difficult scenarios:** Dealing with
+        highly imbalanced data, few learning samples, incomplete
+        data, privacy and fairness constraints.
+      - **Flagship Applications:**
+        - Anomaly and Fraud Detection
+        - Computer Vision
+        - Medical data Analysis
+        - Textual Data Analysis
+        - Social Network Analy
+      
+      
+      @@@@@@@@@@ INTRO TWO APPROACHES @@@@@@@@@@
+      @eval-header: return highlightLi(2)
+      # @copy: overview
+
+      ## Supervised / Unsupervised *Machine Learning*{.dense .step}
+      <img src="media/sup-unsup.svg"></img>
+
+      @anim: #sup | #suppoints | #unsup,#unsuppoints | #separator | #groups | #voronoi
+
+      @: .dense
+      ## Supervised vs Unsupervised Learning
+      - Supervised
+        - Given example inputs ($X$) and corresponding outputs ($y$)
+        - Learn the fonction “input &rarr; output” ($y = f(X)$)
+            - classification (categorical output)
+            - regression (continous output)
+        - methods:
+          - k-NN, SVM, SVR, Random Forests, Least Squares fit, {.no}
+          - Neural Networks, Gaussian Processes, Boosting, ... {.no}
+
+      - Unsupervised
+        - Given a set of data points ($x$)
+        - Model/structure/understand this dataset
+            - clustering, densitiy estimation
+            - source separation
+            - pattern and sequence mining
+            - rare events / anomaly detection
+        - Methods:
+          - PCA, k-means, OneClass-SVM, Isolation Forests, PGM (GMM, HMM, ...), {.no}
+          - DBSCAN, Autoencoders, GANs, KDE ... {.no}
+            
+      ## Sup. / Unsup. *Anomaly Detection*{.dense .step}
+      <img src="media/sup-unsup-anomaly.svg"></img>
+
+      @anim: #sup | #suppoints | #unsup,#unsuppoints | #separator | #groups | #supqueries | #unsupqueries
+
+      # Class Imbalance or Novelty???
+      <img src="media/sup-unsup-anomaly.svg"></img>
+  
+      @@@@@@@@@@ IMBALANCED @@@@@@@@@@
+      @eval-header: $o.s = 3
+      @eval-header: return highlightLi($o.s, 1)
+      # @copy: overview
+
+      ## Imbalanced Problems: Examples // generally, but at the lab
+      - Anomaly detection *// incl images*
+        - unsafe situations in videos // bluecime, first step into it for me
+        - defect detection in images // often as out-of-distribution though
+        - abnormal heart beat detection in ECG
+      - Fraud detection
+        - fraudulent checks
+        - credit card fraud (physical, online)
+        - financial fraud (French DGFIP) // Dir. Géné. des Fin. Pub.
+        - @:displaynone // TODO: add illustr
+
+      ## Imbalanced Classification Problems // generally, but at the lab
+      <img src="media/confusion.svg" class="abs" width="250" style="right:20px; bottom: 40px;"/>
+
+      - Binary classification
+        - $+$ positive class: minority class, anomaly, rare event, … {.no}
+        - $-$ negative class: majority class, normality, typical event, … {.no}
+      - Confusion matrix (of a model vs a ground truth)
+        - TP: true positive
+        - FP: false positive
+        - TN: true negative
+        - FN: false negative
+        - @anim: #predp | #tpetal
+      - Some measures {.padli .densemath}
+        - Precision: $prec=\frac{TP}{TP+FP}$
+        - Recall: $rec=\frac{TP}{P} = \frac{TP}{TP+FN}$
+        - $F_\beta$-measure: $F_\beta = (1+\beta^2)\frac{prec\cdot rec}{\beta^2 \cdot prec + rec}$ \
+          *(higher is better)*{.dense}
+
+      ## F-measure vs Accuracy ?
+      - $F_\beta = (1+\beta^2)\frac{prec\cdot rec}{\beta^2 \cdot prec + rec} = \frac{(1+\beta^2)\cdot (P - FN)}{1 + \beta^2 P - FN + FP}$ \
+        <br/> {.no}
+      - $accuracy = \frac{TP + TN}{P+N} = 1 - \frac{FN+FP}{P+N}$
+        <br/> {.no}
+      - Accuracy inadequacy (e.g. $N=10000, P=100$)
+        - lazy "all$-$" classifier ($TP=0, TN=N, FP=0, FN=P$)
+        - $\textstyle \textcolor{orange}{accuracy} = \frac{0 + N}{P + N} = \frac{10000}{10100} \textcolor{orange}{= 99\\%}$
+        - $\textstyle \textcolor{orange}{F_\beta} = \frac{(1+\beta^2) (P - P)}{1 + \beta^2 P - P + 0} \textcolor{orange}{= 0}$
+      - $F_\beta$-measure challenges
+        - discrete (like the accuracy)
+        - non-convex (even with continuous surrogates)
+        - **non-separable**, i.e.    $F_\beta \ne \sum_{(x_i, y_i) \in S}...$
+        // TODO maybe a schema for the trivial case
+
+      ## Ok, but… I'm doing gradient descent, so…
+      <img src="media/mle-grad.svg" width="800" height="280"/>
+
+      - Gradient:   $0.2$ ⇒ $-7.21$,   $0.5$ ⇒ $-2.89$,   $0.8$ ⇒ $-1.80$,    $1$ ⇒ $-1.44$
+      - Example, gradient intensity is the same for:
+        - $10$ $+$ wrongly classified with an output proba. of $0.2$
+        - $40$ $-$ correctly classified with an output proba $0.8$
+        - i.e., lazily predicting systematically $0.2$ (for $+$)<br/>
+          yields a "stable" solution with $10+$ vs $40-$
+
+      ## Ok, but… my deep model does 100%…
+      - ... the 100% accuracy is on the train set
+      - ... I cannot tell you if it will generalize well
+      - Our team is working on these aspects
+        - [APRIORI ANR project](https://project.inria.fr/apriori/)
+        - guarantees for deep representation learning
+
+      @eval-header: return highlightLi($o.s, 2)
+      # @copy: overview
+
+      ## Counteracting Imbalance
+      - Undersampling the majority class $-$
+
+      - Oversampling class $+$
+
+      - Generating fake $+$
+
+      - Using a weighted-classifiers learner
+      // For models that learn, can reweigh but not perfect (ideal ratio depends on Bayesian error and régularisation etc) can x valid?
+
+
+      @eval-header: return highlightLi($o.s, 3)
+      # @copy: overview
+
+      @:paperattrib #gammann no-libyli
+      ## Learning maximum excluding ellipsoids from imbalanced data with theoretical guarantees
+      - **Guillaume Metzler**, Xavier Badiche, Brahim Belkasmi, Elisa Fromont, Amaury Habrard, Marc Sebban
+      - PRL2018 (Pattern Recognition Letters)
+      - . {.no}
+      - (slides borrowed from Guillaume Metzler Ph.D. defense)
+
+      ##
+      <img src="me2/metzler-p01.svg" width="800" height="550"/>
+      ##
+      <img src="me2/metzler-p02.svg" width="800" height="550"/>
+      ##
+      <img src="me2/metzler-p03.svg" width="800" height="550"/>
+      ##
+      <img src="me2/metzler-p04.svg" width="800" height="550"/>
+      ##
+      <img src="me2/metzler-p05.svg" width="800" height="550"/>
+      ##
+      <img src="me2/metzler-p06.svg" width="800" height="550"/>
+      ##
+      <img src="me2/metzler-p07.svg" width="800" height="550"/>
+
+      ##
+      <img src="me2/metzler-p10.svg" width="800" height="550"/>
+      ##
+      <img src="me2/metzler-p11.svg" width="800" height="550"/>
+      ##
+      <img src="me2/metzler-p12.svg" width="800" height="550"/>
+
+
+      @eval-header: return highlightLi($o.s, 4)
+      # @copy: overview
+
+      @:paperattrib #gammann no-libyli
+      ## An Adjusted Nearest Neighbor Algorithm Maximizing the F-Measure from Imbalanced Data
+      - **Rémi Viola**, Rémi Emonet , Amaury Habrard,<br/>
+        **Guillaume Metzler**, Sébastien Riou, Marc Sebban
+      - ICTAI2019
+
+      ## k-NN: $k$ Nearest Neighbor Classification
+      <img src="gammann/w-knn.svg" class="abs" height="200" style="right:20px; top: 60px;"/>
+
+      - k-NN {.step}
+        - to classify a new point
+        - find the closest k points<br/>
+          (in the training section)
+        - use a voting scheme to affect a class
+        - efficient algorithms<br/>
+          (K-D Tree, Ball Tree)
+
+      - Does k-NN still matter? *// yes non-conv thing, easy adaptability, etc*
+        - non-linear by design (with similarity to RBF-kernel SVM)
+        - no learning, easy to patch a model (add/remove points) // e.g. ECML
+        - Limits of k-NN for imbalanced data?
+
+
+      ## Limits of k-NN for imbalanced data?
+      1. k-NN behavior in uncertain areas
+         - i.e., for some feature vector, the class can be $+$ or $-$
+         - i.e., the Bayes Risk is non zero
+         - ✔ not so bad, 1-NN respects imbalance (not k-NN)
+
+      2. k-NN behavior around boundaries
+         - i.e., what happens if classes are separate but imbalanced
+         - ✖ sampling effects cause problems
+
+      @: centerimage
+      ## 1-NN at a boundary (1000 $+$ / 10k $-$)
+      <img src="gammann/knn-boundary-1-1000-10.png" height="480"/>
+
+      @: centerimage
+      ## 1-NN at a boundary (100 $+$ / 1000 $-$)
+      <img src="gammann/knn-boundary-1-100-10.png" height="480"/>
+
+      @: centerimage
+      ## 1-NN at a boundary (10 $+$ / 100 $-$)
+      <img src="gammann/knn-boundary-1-10-10.png" height="480"/>
+
+      ## 11-NN: increasing k? // (from 1 to 11)
+      <img src="gammann/knn-boundary-1-100-10.png" width="380"/> <img src="gammann/knn-boundary-1-10-10.png" width="380"/>
+      <div style=" transform: translate(0,-255px); opacity: .85; box-shadow: black 5px -5px 20px; margin-right: 30px;">
+        <img src="gammann/knn-boundary-11-100-10.png" width="380"/> <img src="gammann/knn-boundary-11-10-10.png" width="380"/>
+      </div>
+
+      - @anim: #NOTHING | div
+
+      # @copy: gammann
+
+
+      ## $\gamma$-NN Idea: push the decision boundary
+      <img src="gammann/infl-thr-100.svg" width="250"/>
+      <img src="gammann/infl-thr-075.svg" width="250"/>
+      <img src="gammann/infl-thr-040.svg" width="250"/>
+
+      - Goal: correct for problems due to sampling with imbalance
+      - Genesis: GAN to generate "$+$" around existing ones
+        - ⇒ unstable, failing, complex @:no
+      - Approach
+        - artificially make $+$ closer to new points
+        - how? by using a different distance for $+$ and $-$
+        - the base distance to $+$ gets multiplied by a parameter $\gamma$
+         <small>(intuitively $\gamma \le 1$ if $+$ is rare)</small>
+      <div data-special latex style="text-align: center;">
+         \def{\x}{\mathbb{x}}
+         d_\gamma(\x,\x_i) = \begin{cases}
+            d(\x,\x_i) & \text{if} \; \x_i\in S_-,\\
+            \gamma \cdot d(\x,\x_i) & \text{if} \;\x_i\in S_+.
+        \end{cases}
+      </div>
+
+
+      ## $\gamma$-NN: varying $\gamma$ with two points
+      <img src="gammann/gen-1-gamma-2points.svg" style="margin-top: 0" width="800" class="step"/>
+
+      @anim: #g78,#g146 | #g66,#g134 | #g56,#g122 | #g46,#g110 | #g88,#g160
+
+      ## $\gamma$-NN: varying $\gamma$ with a few $+$
+       <img src="gammann/gen-1-gamma.svg" width="385"/>
+       <img src="gammann/gen-1-gamma-surrounded.svg" width="385"/>
+
+      - $\gamma$-NN can control<br/>
+         how close to the minuses it pushes the boundary
+
+      ## $\gamma$-NN: Algorithm
+      <img src="gammann/gamma-nn-algo.png" width="800"/>
+
+      - Trivial to implement
+      - Same complexity as k-NN (at most twice)
+      - Training
+        - none, as k-NN
+        - $\gamma$ is selected by cross-validation<br/>
+          (on the measure of interest)
+
+      ## $\gamma$-NN: a way to reweight distributions
+      - In uncertain regions // when we have more and more points
+      - At the boundaries // depends on intrisic dimensionality
+
+      @:/no-status
+      ## Results on public datasets (F-measure)
+      <img src="gammann/gamma-nn-big-table.png" width="800"/>
+
+      @:/no-status
+      ## Results on DGFiP datasets (F-measure) // underline = second
+      <img src="gammann/gamma-nn-dgfip.png" width="800"/>
+
+      ## $\gamma$-NN at a boundary (10 and 100 $+$)
+      <img src="gammann/gammaknn-boundary-1-10-10.png" width="390" />
+      <img src="gammann/gammaknn-boundary-1-100-10.png" width="390" />
+
+      ## (some) Work in progress
+      - Note:
+        - $\gamma$-NN learns a metric for comparing a query to a $+$
+        - $\gamma$-NN kind of learn the size of a sphere around $+$
+        - this is “Metric Learning”
+      - Extension
+        - learn a full metric (a matrix $M$ and not only $\gamma$)
+        - derive a learning algorithm (not just cross-validation)
+
+      ## 
+      <img src="gammann/mlfp-idea.svg" width="800" height="300"></img>
+
+      <br/>
+      <br/>
+
+      <img src="gammann/mlfp-equation.svg" width="750" height="200"></img>
+
+
+      @eval-header: return highlightLi($o.s, 5)
+      # @copy: overview
+
+      @:paperattrib no-libyli
+      ## From Cost-Sensitive Classification to Tight F-measure Bounds
+      - **Kevin Bascol**, Rémi Emonet, Elisa Fromont, Amaury Habrard,<br/>
+        **Guillaume Metzler**, Marc Sebban   
+      - AISTATS2019
+
+      ## Optimizing the $F_\beta$-measure?
+      - Reminder {.padli .densemath}
+        - Precision: $prec=\frac{TP}{TP+FP}$
+        - Recall: $rec=\frac{TP}{P} = \frac{TP}{TP+FN}$
+        - $F_\beta$-measure: $F_\beta = (1+\beta^2)\frac{prec\cdot rec}{\beta^2 \cdot prec + rec}$
+      - **Non-separability**, i.e.    $F_\beta \ne \sum_{(x_i, y_i) \in S}...$<br/>
+        *NB: accuracy is separable, $acc = \sum_{(x_i, y_i) \in S} \frac{1}{m} \delta(y_i - \hat{y_i})$ @:denser*
+        - ⇒ The loss for one point depends on the others {.no}
+        - ⇒ Impossible to optimize directly {.no}
+        - ⇒ Impossible to optimize on a subset (minibatch) {.no}
+
+      ## Weighted classification for $F_\beta$
+      - $F_\beta = \frac{(1+\beta^2)\cdot (P - FN)}{1 + \beta^2 P - FN + FP} = \frac{(1+\beta^2)\cdot (P - e_1)}{1 + \beta^2 P - e_1 + e_2}$ <br/><br/> {.no}
+      - The $F_\beta$-measure is linear fractional *(in $e = (e_1, e_2) = (FN, FP)$) @:dense*
+      - i.e. $F_\beta = \frac{\langle a', e\rangle + b}{\langle c, e\rangle + d} = \frac{A}{B}$ {.no}
+      - Relation to weighted classification
+        - $\hphantom{\Leftrightarrow } F_\beta \ge t$      (we achieve a good, above $t$, $F_\beta$ value) {.no}
+        - $\Leftrightarrow A \ge t\cdot B$ {.no}
+        - $\Leftrightarrow A - t\cdot B \ge 0$ {.no}
+        - $\Leftrightarrow (1+\beta^2)\cdot (P - e_1) - t ( 1 + \beta^2 P - e_1 + e_2) \ge 0$ {.no}
+        - $\Leftrightarrow (- 1 - \beta^2 + t) e_1 - t e_2 \ge - P (1 + \beta^2) + t ( 1 + \beta^2 P)$ {.no}
+        - $\Leftrightarrow (1 + \beta^2 - t) e_1 + t e_2 \le - P (1 + \beta^2) + t ( 1 + \beta^2 P)$ {.no}
+      - ⇒ so, we can minimize the weighted problem<br/>
+              with class weights $a(t) = (1 + \beta^2 - t, t)$ {.no}
+
+      # CONE <a href="//localhost:4260/main.html" target="_blank">Demo...</a>
+      - <a href="https://home.heeere.com/" target="_blank">contact me</a> to know if the demo is publicly available yet
+
+      @eval-header: $o.s++
+      @eval-header: return highlightLi($o.s)
+      # @copy: overview
+
+      # Learning normality
+
+      ## Unsupervised Temporal Motif Mining <br/> <span style="font-size: 90%">in videos / temporal data (spectrograms, ...)</span>
+      <img src="motif-mining/motif-mining-task.svg" width="750" height="400"></img>
+
+      @anim: #layer1 + -#init | #layer2 | #layer3 | #layer6 | #layer7 | #layer4 | #layer5
+
+
+      ## Temporal Patterns in Videos: Full Process
+      <img src="video-mining/process-full.svg" width="780" height="470"></img>
+
+      - @anim: #layer1 | #shortll | #tdocetc | #shorttm | #layer7 | #layer5
+      - @anim: #layer6 + -#layer3 
+      - @anim: -#layer6 + #layer2
+
+      ## Video Motif Representation {blacktspan}
+      <img src="motif-repr/repr-motif.svg" width="780" height="350"></img>
+
+      - @anim: #motiftable | #rt0 | #rt1 | #rt2 + #rt3 + #rt4 + #rt5 | #giffy |  #arrow + #magic
+
+      # Example Motifs Obtained from a Static Camera
+
+      @:.img3inwidth
+      ## 
+      <img src="motif-images/kuettel3-motifs-003-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-005-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-006-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-010-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-008-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-009-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-004-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-000-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-001-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-002-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-007-magic.jpg" class="step"/>
+      <img src="motif-images/kuettel3-motifs-011-magic.jpg" class="step"/>
+      
+      @:.imagets
+      ## Application with Static Cameras
+      - <img src="applications-summary/diary.jpg"/> <br/> scene understanding
+      - <img src="applications-summary/car-counting.jpg"/> <br/> car counting
+      - <img src="applications-summary/zebracrossing1.jpg"/> <br/> anomaly detection
+      - <img src="applications-summary/operator-multiscreen.jpg"/> <br/> stream selection, anomaly detection,  multi-camera analysis
+
+      @:.imagets
+      ## Audio data?
+      - <img src="applications-summary/tdoa-road.svg" width="350" height="180"/>  <br/> a pair of microphones…
+      - <a href="applications-summary/tdoa-montage.png" target="_blank"><img src="applications-summary/tdoa-montage.png"/></a> <br/> … meaningful motifs…
+      - <img src="tdoa-results/tdoa-precision-recall.svg" width="350" height="180"/> <br/> … and good counting results
+      - ... also with spectrograms
+            
+
+      # How Can We Do This?!
+
+      ## Sol. 1: Hierarchical Probabilistic Models
+      
+      $\hspace{1cm}\mathcal{L} = \sum\_d \sum\_w \sum\_{t\_a} n(w,t\_a,d) log \sum\_z \sum\_{t\_s} p(w,t\_r|z) p(z,t\_s|d)$ {center}
+      
+      <img src="time-models/plsm-model-3.svg" width="250" height="320" class="floatright"/>
+
+      - Generative Model <br/> &rArr; interpretable by design
+      
+      - ⚠ unknown number of motifs <br/> &rArr; use infinite models
+      - Inference
+        - maximum likelihood, EM like
+      - Sparsity on occurrences $p(ts|z, d)$
+        - new objective function: \
+          $\mathcal{L} - \lambda\_{sparse} \sum\_d \sum\_z KL(U || p(ts|z, d))$
+      
+      ## Sol. 2: Neural Networks, Auto-encoders
+      - Principle of auto-encoders
+        - learn to produce the input from the input
+        - going through a limited-size representation (bottleneck)
+        - $x' = f(x) = f_{DEC}(f_{ENC}(x))$
+        - minimize the reconstruction error $d(x, x') = \left\\|x - x'\right\\|^2$
+
+      - ⚠ Issues: interpretability, number of motifs, ...
+      <img class="cup" src="cc/cup-and-string.png" width="750" />
+      
+      
+      ## Sol. 2: Interpretable Auto-Encoders
+      <img src="media/essai_schemas.png" width="800" />
+
+      - Add specific operators (layers)
+        - global specialized maximum selection (AdaReLU)
+        - locally, filter response decorrelation
+
+      - Special Loss: a combination of well-chosen target functions
+        - encourage sparse motifs (with a lot of zero)
+        - encourage sparse activations
+        - ⚠ unknown number of motifs &rArr; use “group-sparsity”
+      
+
+
+      @eval-header: $o.s++
+      @eval-header: return highlightLi($o.s)
+      # @copy: overview
+
+      @:/title-slide
+      # Thank you! Questions?{.captain}
+      <img src="media/logos.svg" width="800" class="abs" style="top:10px"/>
+      <img src="media/logos.svg" width="800" class="abs" style="bottom:30px"/>
+
+
+      @sticky-add: @off
+      # MORE (from before but there is a lot more more in 2019-10-17)
+      - idea: new robust distance: min l_inf dist on a subset of features,, or min l2 on a fixed-size subset of features   ( subset fixed or not ?)
+
+
+
+    </template>
+
+    <script src="./nuedeck/nuedeck-deps.js"></script>
+    <script src="./nuedeck/nuedeck.js"></script>
+    <script>setTimeout(()=>{/*vm.currentSlide = -1*/}, 200)</script>
+
+  </body>
+</html>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="800"
+   height="600"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.3.1 r9886"
+   sodipodi:docname="tdoa-montage.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="393.88174"
+     inkscape:cy="280.29209"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1909"
+     inkscape:window-height="993"
+     inkscape:window-x="0"
+     inkscape:window-y="27"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-452.36218)">
+    <rect
+       style="color:#000000;fill:#800000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect3135-6"
+       width="777.25513"
+       height="163.13957"
+       x="11.392855"
+       y="865.16602" />
+    <rect
+       style="color:#000000;fill:#cccccc;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       id="rect3135"
+       width="777.25513"
+       height="379.81738"
+       x="11.392855"
+       y="463.44324" />
+    <g
+       id="g3137"
+       transform="matrix(0.96907217,0,0,0.96907217,10.971773,19.772113)">
+      <image
+         width="777.51074"
+         height="82.849503"
+         xlink:href="../tdoa-results/tdoa-documents-image-016.png"
+         id="image3099"
+         x="12.709727"
+         y="468.81451" />
+      <image
+         width="777.51074"
+         height="82.849503"
+         xlink:href="../tdoa-results/tdoa-documents-image-019.png"
+         id="image3110"
+         x="12.709727"
+         y="564.52197" />
+      <image
+         width="777.51074"
+         height="82.849503"
+         xlink:href="../tdoa-results/tdoa-documents-image-023.png"
+         id="image3121"
+         x="12.709727"
+         y="755.93689" />
+      <image
+         width="777.51074"
+         height="82.849503"
+         xlink:href="../tdoa-results/tdoa-documents-image-026.png"
+         id="image3132"
+         x="12.709727"
+         y="660.22943" />
+    </g>
+    <g
+       id="g3240"
+       transform="translate(11.857831,0.02193451)">
+      <image
+         width="189.56291"
+         height="118.47681"
+         xlink:href="../tdoa-results/tdoa-motifs-exp67-55-2-001.png"
+         id="image3178"
+         x="21.416254"
+         y="887.49738" />
+      <image
+         width="189.56291"
+         height="118.47681"
+         xlink:href="../tdoa-results/tdoa-motifs-exp67-55-2-003.png"
+         id="image3200"
+         x="367.05371"
+         y="887.49738" />
+      <image
+         width="189.56291"
+         height="118.47681"
+         xlink:href="../tdoa-results/tdoa-motifs-exp67-55-2-004.png"
+         id="image3211"
+         x="565.34601"
+         y="887.49738" />
+      <rect
+         y="887.3432"
+         x="158.97276"
+         height="118.74133"
+         width="102.02541"
+         id="rect3238"
+         style="color:#000000;fill:#800000;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+      <image
+         width="189.56291"
+         height="118.47681"
+         xlink:href="../tdoa-results/tdoa-motifs-exp67-55-2-002.png"
+         id="image3189"
+         x="168.76143"
+         y="887.49738" />
+    </g>
+  </g>
+</svg>
